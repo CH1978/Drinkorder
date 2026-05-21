@@ -303,13 +303,18 @@
 </div>
 
 <script>
-// Firebase 配置
+// 🔥 已經對齊你 drink-shop-30b5f 專案的官方正版配置
 const firebaseConfig = {
   apiKey: "AIzaSyCg7OvPmaCK7rLUT08SPfYtAX3mAeB-gao",
   authDomain: "drink-shop-30b5f.firebaseapp.com",
-  projectId: "drink-shop-30b5f"
+  projectId: "drink-shop-30b5f",
+  storageBucket: "drink-shop-30b5f.firebasestorage.app",
+  messagingSenderId: "434506350610",
+  appId: "1:434506350610:web:c37726a5d5d87b320358cb",
+  measurementId: "G-FNMTCRDD5E"
 };
 
+// 初始化 Firebase (相容架構版)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -444,7 +449,7 @@ function submitOrder() {
     document.getElementById("note").value = ""; 
     renderCart();
   }).catch(err => {
-    alert("傳送失敗，請確認網路狀態：" + err);
+    alert("傳送失敗，請確認網路狀態及 Firebase 讀寫權限：" + err);
   });
 }
 
@@ -553,7 +558,6 @@ function setTime() {
   t = t.trim();
 
   let now = new Date();
-  // 建立乾淨的時間本體，精確防禦手機端 iOS Date 誤判時區的 NaN 錯誤
   let end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), 0, 0);
 
   if (/^\d+$/.test(t)) {
@@ -578,13 +582,13 @@ function setTime() {
   }
 
   db.collection("system").doc("control").set({
-    endTime: end.getTime(), // 轉成純數位毫秒，手機最安全認得
+    endTime: end.getTime(), 
     running: true
   }).then(() => {
     let displayTime = end.getHours().toString().padStart(2, '0') + ":" + end.getMinutes().toString().padStart(2, '0');
     alert("系統已成功啟用！截止時間設定為：" + displayTime);
   }).catch(err => {
-    alert("Firebase 寫入失敗：" + err);
+    alert("Firebase 寫入失敗，請確認 Rules 權限已開：\n" + err);
   });
 }
 
@@ -624,7 +628,6 @@ db.collection("system").doc("control").onSnapshot(d => {
     let now = Date.now();
     let endTime = parseInt(x.endTime, 10);
 
-    // 強大防禦：如遇到不可預期之 NaN 則立刻進行安全截止保護，絕不留白畫面
     if (isNaN(endTime)) {
       document.getElementById("status").innerText = "點餐數據異常";
       document.getElementById("status").style.background = "#718096";
