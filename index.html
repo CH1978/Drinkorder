@@ -70,7 +70,6 @@
     height: fit-content;
   }
 
-  /* 分類按鈕 */
   .categories {
     display: flex;
     flex-wrap: wrap;
@@ -100,7 +99,6 @@
     border-color: var(--primary);
   }
 
-  /* 菜單卡片 */
   .menu {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -137,7 +135,6 @@
     margin-bottom: 12px;
   }
 
-  /* 通用按鈕與輸入框 */
   button {
     padding: 8px 16px;
     border: none;
@@ -181,7 +178,6 @@
     border-color: var(--primary);
   }
 
-  /* 購物車與側邊欄項目 */
   .section-title {
     font-size: 1.1rem;
     margin: 20px 0 10px 0;
@@ -220,7 +216,6 @@
     background: var(--accent-hover);
   }
 
-  /* 統計與排行列表樣式 */
   .badge-list div, .rank-list div {
     padding: 6px 0;
     font-size: 0.95rem;
@@ -228,7 +223,6 @@
     border-bottom: 1px solid #f7fafc;
   }
 
-  /* 管理員區塊 */
   .admin {
     background: #fffaf0;
     border: 1px solid #feebc8;
@@ -242,7 +236,6 @@
   .admin button:hover { background: #c05621; }
   #adminState { font-size: 0.85rem; color: #718096; margin: 8px 0 0 0; }
 
-  /* 響應式排版 */
   @media(max-width:768px){
     .container { flex-direction: column; padding: 10px; }
     .menu { grid-template-columns: 1fr; }
@@ -294,6 +287,7 @@
       <input id="u" placeholder="管理員帳號">
       <input id="p" type="password" placeholder="密碼">
       <button onclick="login()">登入</button>
+      <button onclick="logout()" style="background:#718096;">登出</button>
       <button onclick="setTime()">設定截止時間</button>
       <button onclick="clearAll()">清空所有訂單</button>
       <p id="adminState">目前狀態：未登入</p>
@@ -303,7 +297,6 @@
 </div>
 
 <script>
-// 🔥 已經對齊你 drink-shop-30b5f 專案的官方正版配置
 const firebaseConfig = {
   apiKey: "AIzaSyCg7OvPmaCK7rLUT08SPfYtAX3mAeB-gao",
   authDomain: "drink-shop-30b5f.firebaseapp.com",
@@ -314,11 +307,9 @@ const firebaseConfig = {
   measurementId: "G-FNMTCRDD5E"
 };
 
-// 初始化 Firebase (相容架構版)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// 系統核心變數
 let isAdmin = false;
 const ADMIN_USER = "王景弘";
 const ADMIN_PASS = "1788";
@@ -328,7 +319,6 @@ let orders = [];
 let locked = true;
 let countdownTimer = null; 
 
-// 菜單與分類資料
 const categories = {
   "茶類": [
     {name: "高青冷粹", price: 50},
@@ -349,7 +339,6 @@ const categories = {
 
 let current = "茶類";
 
-// 初始化分類標籤按鈕
 const cats = document.getElementById("cats");
 Object.keys(categories).forEach(c => {
   let b = document.createElement("button");
@@ -370,7 +359,6 @@ function setActive() {
   });
 }
 
-// 渲染菜單品項卡片
 function renderMenu() {
   let m = document.getElementById("menu");
   let html = "";
@@ -388,13 +376,11 @@ function renderMenu() {
   m.innerHTML = html;
 }
 
-// 購物車新增
 function add(n, p) {
   cart.push({name: n, price: p});
   renderCart();
 }
 
-// 渲染購物車
 function renderCart() {
   let c = document.getElementById("cart");
   let html = "";
@@ -419,7 +405,6 @@ function renderCart() {
   document.getElementById("total").innerText = "總金額：$" + t;
 }
 
-// 送出訂單
 function submitOrder() {
   if (locked) { alert("目前系統尚未開放或點餐已截止！"); return; }
   if (cart.length === 0) { alert("您的購物車目前是空的喔！"); return; }
@@ -444,16 +429,16 @@ function submitOrder() {
     note: note || "無備註",
     time: Date.now()
   }).then(() => {
-    alert("訂單送出成功！");
+    alert("訂單送出成功！已同步至雲端資料庫。");
     cart = [];
     document.getElementById("note").value = ""; 
     renderCart();
   }).catch(err => {
-    alert("傳送失敗，請確認網路狀態及 Firebase 讀寫權限：" + err);
+    alert("傳送失敗！請確認 Firebase 的 Rules 權限已開放！\n錯誤訊息：" + err);
   });
 }
 
-// 即時同步監聽資料庫
+// 📡 關鍵功能：網頁一重整，這裡會自動重新抓取雲端所有的歷史訂單並顯示
 db.collection("orders").onSnapshot(s => {
   orders = [];
   s.forEach(d => orders.push(d.data()));
@@ -464,7 +449,6 @@ db.collection("orders").onSnapshot(s => {
   renderOrderList();
 });
 
-// 統計功能
 function renderStats() {
   let s = {};
   orders.forEach(o => {
@@ -483,7 +467,6 @@ function renderStats() {
   d.innerHTML = html || "暫無統計數據";
 }
 
-// 排行榜功能
 function renderRank() {
   let s = {};
   orders.forEach(o => {
@@ -505,7 +488,6 @@ function renderRank() {
   d.innerHTML = html || "暫無排行資料";
 }
 
-// 🧾 公開訂單明細
 function renderOrderList() {
   let d = document.getElementById("ordersList");
   
@@ -533,22 +515,29 @@ function renderOrderList() {
   d.innerHTML = html;
 }
 
-// 管理員登入
 function login() {
   let u = document.getElementById("u").value;
   let p = document.getElementById("p").value;
 
   if (u === ADMIN_USER && p === ADMIN_PASS) {
     isAdmin = true;
+    localStorage.setItem("drinkAdminLoggedIn", "true"); // 記憶登入狀態
     document.getElementById("adminState").innerText = "目前狀態：管理員已登入";
     document.getElementById("adminState").style.color = "#38a169";
-    alert("管理員認證成功！");
+    alert("管理員認證成功！重新整理網頁也不會斷線囉。");
   } else {
     alert("帳號或密碼不正確！");
   }
 }
 
-// 設定截止時間（全平台防呆修正版）
+function logout() {
+  isAdmin = false;
+  localStorage.removeItem("drinkAdminLoggedIn"); // 清除記憶
+  document.getElementById("adminState").innerText = "目前狀態：未登入";
+  document.getElementById("adminState").style.color = "#718096";
+  alert("已成功登出管理員身分。");
+}
+
 function setTime() {
   if (!isAdmin) { alert("請先登入管理員帳號！"); return; }
 
@@ -588,11 +577,10 @@ function setTime() {
     let displayTime = end.getHours().toString().padStart(2, '0') + ":" + end.getMinutes().toString().padStart(2, '0');
     alert("系統已成功啟用！截止時間設定為：" + displayTime);
   }).catch(err => {
-    alert("Firebase 寫入失敗，請確認 Rules 權限已開：\n" + err);
+    alert("Firebase 寫入失敗，請檢查 Rules 開放了沒：\n" + err);
   });
 }
 
-// 清空所有歷史訂單（批次提交）
 function clearAll() {
   if (!isAdmin) { alert("請先登入管理員帳號！"); return; }
   if (!confirm("警告！這將清除資料庫內『所有人』目前的訂單，確定繼續？")) return;
@@ -610,7 +598,6 @@ function clearAll() {
   });
 }
 
-// 🕒 即時同步動態倒數計時器（全平台防禦相容版）
 db.collection("system").doc("control").onSnapshot(d => {
   let x = d.data();
   
@@ -656,6 +643,13 @@ db.collection("system").doc("control").onSnapshot(d => {
 renderMenu();
 setActive();
 renderCart();
+
+// 自動檢查本機快取，重整不用重複登入
+if (localStorage.getItem("drinkAdminLoggedIn") === "true") {
+  isAdmin = true;
+  document.getElementById("adminState").innerText = "目前狀態：管理員已自動登入";
+  document.getElementById("adminState").style.color = "#38a169";
+}
 </script>
 
 </body>
