@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>高級即時飲料點餐系統 V3.5</title>
+<title>高級即時飲料點餐系統 V3.6 穩定版</title>
 
 <style>
   :root {
@@ -318,7 +318,7 @@ const ADMIN_PASS = "1788";
 let cart = [];
 let orders = [];
 let locked = true;
-let countdownTimer = null; // 計時器指標，防多次綁定疊加
+let countdownTimer = null; 
 
 // 菜單與分類資料
 const categories = {
@@ -386,7 +386,7 @@ function add(n, p) {
   renderCart();
 }
 
-// 渲染購物車（緩衝優化版）
+// 渲染購物車
 function renderCart() {
   let c = document.getElementById("cart");
   let html = "";
@@ -411,7 +411,7 @@ function renderCart() {
   document.getElementById("total").innerText = "總金額：$" + t;
 }
 
-// 送出訂單（整合防空、同人多杯打包、金額整合邏輯）
+// 送出訂單
 function submitOrder() {
   if (locked) { alert("目前系統尚未開放或點餐已截止！"); return; }
   if (cart.length === 0) { alert("您的購物車目前是空的喔！"); return; }
@@ -424,35 +424,31 @@ function submitOrder() {
   let totalAmount = 0;
   let itemNames = [];
   
-  // 計算總金額並抽取各個飲料品項名稱
   cart.forEach(i => {
     totalAmount += i.price;
     itemNames.push(i.name);
   });
 
-  // 打包寫入 Firebase
   db.collection("orders").add({
     name: name,
-    items: itemNames,         // 改為陣列架構：一人點多杯合併
-    total: totalAmount,       // 直接紀錄這筆訂單的結帳總金額
+    items: itemNames,         
+    total: totalAmount,       
     note: note || "無備註",
     time: Date.now()
   }).then(() => {
     alert("訂單送出成功！");
     cart = [];
-    document.getElementById("note").value = ""; // 成功後順手幫填寫者清空備註
+    document.getElementById("note").value = ""; 
     renderCart();
   }).catch(err => {
     alert("傳送失敗，請確認網路狀態：" + err);
   });
 }
 
-// 即時同步監聽資料庫（依時間排序）
+// 即時同步監聽資料庫
 db.collection("orders").onSnapshot(s => {
   orders = [];
   s.forEach(d => orders.push(d.data()));
-
-  // 排序：最新的訂單秀在最前面
   orders.sort((a, b) => b.time - a.time);
 
   renderStats();
@@ -460,7 +456,7 @@ db.collection("orders").onSnapshot(s => {
   renderOrderList();
 });
 
-// 統計功能（相容新舊架構）
+// 統計功能
 function renderStats() {
   let s = {};
   orders.forEach(o => {
@@ -479,7 +475,7 @@ function renderStats() {
   d.innerHTML = html || "暫無統計數據";
 }
 
-// 排行榜功能（相容新舊架構）
+// 排行榜功能
 function renderRank() {
   let s = {};
   orders.forEach(o => {
@@ -501,7 +497,7 @@ function renderRank() {
   d.innerHTML = html || "暫無排行資料";
 }
 
-// 🧾 公開訂單明細（整合多品項串接與金額加總）
+// 🧾 公開訂單明細
 function renderOrderList() {
   let d = document.getElementById("ordersList");
   
@@ -512,7 +508,6 @@ function renderOrderList() {
 
   let html = "";
   orders.forEach(o => {
-    // 兼容機制：若讀到舊資料無打包格式則自動適應單品與單價
     let drinkList = o.items ? o.items.join("、") : o.item;
     let orderTotal = o.total ? o.total : o.price;
 
@@ -530,7 +525,7 @@ function renderOrderList() {
   d.innerHTML = html;
 }
 
-// 管理員登入控制
+// 管理員登入
 function login() {
   let u = document.getElementById("u").value;
   let p = document.getElementById("p").value;
@@ -545,57 +540,52 @@ function login() {
   }
 }
 
-// 設定截止時間
-// 設定截止時間（修正防呆版）
+// 設定截止時間（全平台防呆修正版）
 function setTime() {
   if (!isAdmin) { alert("請先登入管理員帳號！"); return; }
 
   let t = prompt("請輸入截止時間\n格式一：幾分鐘後（例如輸入 15 代表 15 分鐘後截止）\n格式二：指定時間（例如輸入 15:30）");
   
-  // 防呆 1：如果使用者點取消或沒輸入，直接離開不報錯
   if (!t) return; 
   t = t.trim();
 
-  let end = new Date();
+  let now = new Date();
+  // 建立乾淨的時間本體，精確防禦手機端 iOS Date 誤判時區的 NaN 錯誤
+  let end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), 0, 0);
 
-  // 檢查是不是純數字（代表輸入的是「幾分鐘後」）
   if (/^\d+$/.test(t)) {
     let minutes = parseInt(t, 10);
     end.setMinutes(end.getMinutes() + minutes);
   } 
-  // 否則檢查是不是 15:30 這種時間格式
   else if (t.includes(":")) {
     let parts = t.split(":");
-    let h = parts[0].trim();
-    let m = parts[1].trim();
+    let h = parseInt(parts[0].trim(), 10);
+    let m = parseInt(parts[1].trim(), 10);
     
-    if (h === "" || m === "" || isNaN(h) || isNaN(m)) { 
-      alert("時間格式錯誤，請輸入正確的數字！"); 
+    if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) { 
+      alert("時間格式錯誤，請輸入正確的 24 小時制數字！"); 
       return; 
     }
-    end.setHours(parseInt(h, 10));
-    end.setMinutes(parseInt(m, 10));
-    end.setSeconds(0);
+    end.setHours(h);
+    end.setMinutes(m);
   } 
   else {
     alert("輸入格式不正確！請輸入純數字或 HH:MM 格式。");
     return;
   }
 
-  // 寫入 Firebase
   db.collection("system").doc("control").set({
-    endTime: end.getTime(),
+    endTime: end.getTime(), // 轉成純數位毫秒，手機最安全認得
     running: true
   }).then(() => {
-    // 格式化顯示時間給管理員確認
     let displayTime = end.getHours().toString().padStart(2, '0') + ":" + end.getMinutes().toString().padStart(2, '0');
     alert("系統已成功啟用！截止時間設定為：" + displayTime);
   }).catch(err => {
-    alert("Firebase 寫入失敗，請檢查權限或網路：" + err);
+    alert("Firebase 寫入失敗：" + err);
   });
 }
 
-// 清空所有歷史訂單（採用安全的批次提交優化）
+// 清空所有歷史訂單（批次提交）
 function clearAll() {
   if (!isAdmin) { alert("請先登入管理員帳號！"); return; }
   if (!confirm("警告！這將清除資料庫內『所有人』目前的訂單，確定繼續？")) return;
@@ -613,14 +603,13 @@ function clearAll() {
   });
 }
 
-// 🕒 即時同步動態倒數計時器核心（徹底修復靜態不會跳秒的問題）
+// 🕒 即時同步動態倒數計時器（全平台防禦相容版）
 db.collection("system").doc("control").onSnapshot(d => {
   let x = d.data();
   
-  // 每次重啟監聽，徹底清空先前的倒數循環，防重疊效應
   if (countdownTimer) clearInterval(countdownTimer);
 
-  if (!x || !x.running) {
+  if (!x || !x.running || !x.endTime) {
     document.getElementById("status").innerText = "未開放點餐";
     document.getElementById("status").style.background = "#718096";
     locked = true;
@@ -628,10 +617,20 @@ db.collection("system").doc("control").onSnapshot(d => {
   }
 
   locked = false;
-  // 建立每秒執行一次的動態迴圈
   countdownTimer = setInterval(() => {
     let now = Date.now();
-    let r = Math.floor((x.endTime - now) / 1000);
+    let endTime = parseInt(x.endTime, 10);
+
+    // 強大防禦：如遇到不可預期之 NaN 則立刻進行安全截止保護，絕不留白畫面
+    if (isNaN(endTime)) {
+      document.getElementById("status").innerText = "點餐數據異常";
+      document.getElementById("status").style.background = "#718096";
+      locked = true;
+      clearInterval(countdownTimer);
+      return;
+    }
+
+    let r = Math.floor((endTime - now) / 1000);
 
     if (r <= 0) {
       document.getElementById("status").innerText = "點餐已結束";
