@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>高級即時飲料點餐系統 V3.6 穩定版</title>
+<title>茶仨人茶飲時飲料點餐系統 V3.6 穩定版</title>
 
 <style>
   :root {
@@ -320,21 +320,63 @@ let locked = true;
 let countdownTimer = null; 
 
 const categories = {
-  "茶類": [
-    {name: "高青冷粹", price: 50},
-    {name: "美人茶", price: 50},
-    {name: "青蜜愛人", price: 50}
+  
+  "Farmer's Tea 茶農好茶": [
+    {"name": "高青冷粹", "price": 50},
+    {"name": "美人茶", "price": 50},
+    {"name": "青蜜愛人", "price": 50}
   ],
-  "咖啡": [
-    {name: "美式咖啡", price: 50},
-    {name: "拿鐵", price: 55},
-    {name: "風暴咖啡", price: 60}
+  "Coffee Drinks 咖啡飲": [
+    {"name": "阿里山手沖咖啡", "price": 120},
+    {"name": "美式咖啡", "price": 50},
+    {"name": "拿鐵", "price": 55},
+    {"name": "風暴咖啡", "price": 60}
   ],
-  "奶茶": [
-    {name: "東方一朵白", price: 60},
-    {name: "一抹綠", price: 60},
-    {name: "念念布忘", price: 70}
+  "Milk Tea Series 奶香飲": [
+    {"name": "東方一朵白", "price": 60},
+    {"name": "一抹綠", "price": 60},
+    {"name": "念念布忘", "price": 70}
+  ],
+  "Light Refreshers 輕感飲": [
+    {"name": "輕飄飄籽寶", "price": 70},
+    {"name": "今天喝這杯", "price": 80}
+  ],
+  "Caffeine-Free 無咖飲": [
+    {"name": "黑糖薑茶", "price": 60},
+    {"name": "桂圓紅棗茶", "price": 60},
+    {"name": "薑薑好", "price": 65},
+    {"name": "棗暖暖", "price": 65},
+    {"name": "喬韻茶", "price": 50},
+    {"name": "喬韻奶茶", "price": 60},
+    {"name": "煦煦光茶", "price": 50},
+    {"name": "煦煦奶香", "price": 60}
+  ],
+  "Fruit mixes 果漾特調": [
+    {"name": "蜜蜜傳說", "price": 60},
+    {"name": "五月天", "price": 60},
+    {"name": "蜜蜜爆一下", "price": 70},
+    {"name": "五月天.荔荔在心頭", "price": 70}
+  ],
+  "Rich Milk Tea Series 濃奶飲": [
+    {"name": "五月如煙", "price": 70},
+    {"name": "蜜蜜仙境", "price": 70}
+  ],
+  "Topping Specialty Drinks 有料飲": [
+    {"name": "黑糖Q奶", "price": 65},
+    {"name": "蕎麥Q奶", "price": 65},
+    {"name": "黑糖啵啵", "price": 65},
+    {"name": "0卡啵啵", "price": 65},
+    {"name": "粉角Q奶", "price": 65},
+    {"name": "黑糖雙Q", "price": 70},
+    {"name": "美人甜一點", "price": 65},
+    {"name": "黑美人", "price": 55}
+  ],
+  "Yakult Series 多多好心情": [
+    {"name": "幸福多多", "price": 60},
+    {"name": "幸福多多- 草莓", "price": 60},
+    {"name": "幸福多多- 牛奶", "price": 60}
   ]
+
 };
 
 let current = "茶類";
