@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>茶仨人茶飲時飲料點餐系統 V3.6 穩定版</title>
+<title>靜宜早點點餐系統 V3.6 穩定版</title>
 
 <style>
   :root {
@@ -189,10 +189,21 @@
   .item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 8px 0;
     border-bottom: 1px dashed var(--border);
     font-size: 0.95rem;
   }
+
+  .del-btn {
+    background: none;
+    color: #e53e3e;
+    padding: 0 5px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .del-btn:hover { color: #c53030; opacity: 1; }
 
   #total {
     text-align: right;
@@ -251,37 +262,34 @@
 <body>
 
 <header>
-  🧋 飲料即時點餐系統 <span id="status">載入中...</span>
+  🧋 靜宜早點點餐系統 <span id="status">載入中...</span>
 </header>
 
 <div class="container">
 
-  <!-- 左側：菜單區 -->
   <div class="left">
     <div class="categories" id="cats"></div>
     <div class="menu" id="menu"></div>
   </div>
 
-  <!-- 右側：購物車與看板資訊 -->
   <div class="side">
     <h3 class="section-title" style="margin-top:0;">🛒 當前購物車</h3>
     <div id="cart"></div>
     <div id="total">總金額：$0</div>
 
     <input id="name" placeholder="您的名字（必填）">
-    <input id="note" placeholder="甜度冰量 / 備註資訊">
+    <input id="note" placeholder="想說的話 / 備註資訊">
     <button class="submit-btn" onclick="submitOrder()">送出訂單</button>
 
     <h3 class="section-title">🥇 熱門排行榜</h3>
     <div class="rank-list" id="rank"></div>
 
-    <h3 class="section-title">📊 品項杯數統計</h3>
+    <h3 class="section-title">📊 品項統計</h3>
     <div class="badge-list" id="stats"></div>
 
     <h3 class="section-title">🧾 實時訂單明細（公開）</h3>
     <div id="ordersList"></div>
 
-    <!-- 管理員主控台 -->
     <div class="admin">
       <h3>🔐 管理員主控台</h3>
       <input id="u" placeholder="管理員帳號">
@@ -320,66 +328,38 @@ let locked = true;
 let countdownTimer = null; 
 
 const categories = {
-  
-  "Farmer's Tea 茶農好茶": [
-    {"name": "高青冷粹", "price": 50},
-    {"name": "美人茶", "price": 50},
-    {"name": "青蜜愛人", "price": 50}
+
+  "Egg Roll Series 蛋餅類": [
+    {"name": "豬肉蛋餅", "price": 70},
+    {"name": "牛肉蛋餅", "price": 70},
+    {"name": "蔬菜蛋餅", "price": 45},
+    {"name": "玉米蛋餅", "price": 45},
+    {"name": "蛋餅", "price": 35}
   ],
-  "Coffee Drinks 咖啡飲": [
-    {"name": "阿里山手沖咖啡", "price": 120},
-    {"name": "美式咖啡", "price": 50},
-    {"name": "拿鐵", "price": 55},
-    {"name": "風暴咖啡", "price": 60}
+  "Pie & Pastry Series 餡餅 / 餅類": [
+    {"name": "豬肉餡餅", "price": 45},
+    {"name": "牛肉餡餅", "price": 45},
+    {"name": "韭菜肉餅", "price": 26},
+    {"name": "蔥肉餅", "price": 26},
+    {"name": "紅豆餅", "price": 24},
+    {"name": "芋頭餅", "price": 24},
+    {"name": "燒餅", "price": 24}
   ],
-  "Milk Tea Series 奶香飲": [
-    {"name": "東方一朵白", "price": 60},
-    {"name": "一抹綠", "price": 60},
-    {"name": "念念布忘", "price": 70}
-  ],
-  "Light Refreshers 輕感飲": [
-    {"name": "輕飄飄籽寶", "price": 70},
-    {"name": "今天喝這杯", "price": 80}
-  ],
-  "Caffeine-Free 無咖飲": [
-    {"name": "黑糖薑茶", "price": 60},
-    {"name": "桂圓紅棗茶", "price": 60},
-    {"name": "薑薑好", "price": 65},
-    {"name": "棗暖暖", "price": 65},
-    {"name": "喬韻茶", "price": 50},
-    {"name": "喬韻奶茶", "price": 60},
-    {"name": "煦煦光茶", "price": 50},
-    {"name": "煦煦奶香", "price": 60}
-  ],
-  "Fruit mixes 果漾特調": [
-    {"name": "蜜蜜傳說", "price": 60},
-    {"name": "五月天", "price": 60},
-    {"name": "蜜蜜爆一下", "price": 70},
-    {"name": "五月天.荔荔在心頭", "price": 70}
-  ],
-  "Rich Milk Tea Series 濃奶飲": [
-    {"name": "五月如煙", "price": 70},
-    {"name": "蜜蜜仙境", "price": 70}
-  ],
-  "Topping Specialty Drinks 有料飲": [
-    {"name": "黑糖Q奶", "price": 65},
-    {"name": "蕎麥Q奶", "price": 65},
-    {"name": "黑糖啵啵", "price": 65},
-    {"name": "0卡啵啵", "price": 65},
-    {"name": "粉角Q奶", "price": 65},
-    {"name": "黑糖雙Q", "price": 70},
-    {"name": "美人甜一點", "price": 65},
-    {"name": "黑美人", "price": 55}
-  ],
-  "Yakult Series 多多好心情": [
-    {"name": "幸福多多", "price": 60},
-    {"name": "幸福多多- 草莓", "price": 60},
-    {"name": "幸福多多- 牛奶", "price": 60}
+  "Dim Sum & Combos 點心 / 組合類": [
+    {"name": "油條", "price": 22},
+    {"name": "燒餅 + 油條", "price": 46},
+    {"name": "燒餅 + 肉片", "price": 55},
+    {"name": "燒餅 + 蔥蛋", "price": 42},
+    {"name": "燒餅 + 荷包蛋", "price": 39},
+    {"name": "蔥包蛋", "price": 18},
+    {"name": "荷包蛋", "price": 15}
   ]
+
 
 };
 
-let current = "茶類";
+// 修正：直接抓取物件的第一個 Key 作為預設，避免抓不到 "茶類" 導致菜單空白
+let current = Object.keys(categories)[0]; 
 
 const cats = document.getElementById("cats");
 Object.keys(categories).forEach(c => {
@@ -423,6 +403,12 @@ function add(n, p) {
   renderCart();
 }
 
+// 新增功能：從購物車移除單一品項
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  renderCart();
+}
+
 function renderCart() {
   let c = document.getElementById("cart");
   let html = "";
@@ -434,12 +420,15 @@ function renderCart() {
     return;
   }
 
-  cart.forEach(x => {
+  cart.forEach((x, index) => {
     t += x.price;
     html += `
       <div class="item">
         <span>${x.name}</span>
-        <span style="font-weight:bold; color:#718096;">$${x.price}</span>
+        <div>
+          <span style="font-weight:bold; color:#718096; margin-right:10px;">$${x.price}</span>
+          <button class="del-btn" onclick="removeFromCart(${index})">❌</button>
+        </div>
       </div>`;
   });
 
@@ -480,10 +469,14 @@ function submitOrder() {
   });
 }
 
-// 📡 關鍵功能：網頁一重整，這裡會自動重新抓取雲端所有的歷史訂單並顯示
+// 修正：將 document 的 id 存入物件中，以便後續可以單筆刪除
 db.collection("orders").onSnapshot(s => {
   orders = [];
-  s.forEach(d => orders.push(d.data()));
+  s.forEach(d => {
+    let data = d.data();
+    data.id = d.id; // 綁定 Firebase 的隨機文件 ID
+    orders.push(data);
+  });
   orders.sort((a, b) => b.time - a.time);
 
   renderStats();
@@ -530,6 +523,18 @@ function renderRank() {
   d.innerHTML = html || "暫無排行資料";
 }
 
+// 新增功能：管理員刪除單筆雲端訂單
+function deleteSingleOrder(id, name) {
+  if (!isAdmin) { alert("請先登入管理員帳號！"); return; }
+  if (!confirm(`確定要刪除屬名「${name}」的這筆訂單嗎？`)) return;
+
+  db.collection("orders").doc(id).delete().then(() => {
+    alert("該筆訂單已成功移除！");
+  }).catch(err => {
+    alert("刪除失敗：" + err);
+  });
+}
+
 function renderOrderList() {
   let d = document.getElementById("ordersList");
   
@@ -542,11 +547,14 @@ function renderOrderList() {
   orders.forEach(o => {
     let drinkList = o.items ? o.items.join("、") : o.item;
     let orderTotal = o.total ? o.total : o.price;
+    
+    // 如果是管理員狀態，就渲染出刪除單筆的按鈕
+    let adminDelBtn = isAdmin ? `<button class="del-btn" style="font-size:0.8rem; margin-left:8px;" onclick="deleteSingleOrder('${o.id}', '${o.name}')">❌ 刪除</button>` : '';
 
     html += `
       <div style="border-bottom: 1px solid var(--border); padding: 12px 0; font-size: 0.95rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-          <span style="font-weight: bold; color: #2d3748;">👤 ${o.name}</span>
+          <span style="font-weight: bold; color: #2d3748;">👤 ${o.name} ${adminDelBtn}</span>
           <span style="color: var(--accent); font-weight: bold; font-size: 1rem;">$${orderTotal}</span>
         </div>
         <div style="color: #4a5568; margin-bottom: 2px; font-size: 0.9rem;">🧋 ${drinkList}</div>
@@ -563,9 +571,10 @@ function login() {
 
   if (u === ADMIN_USER && p === ADMIN_PASS) {
     isAdmin = true;
-    localStorage.setItem("drinkAdminLoggedIn", "true"); // 記憶登入狀態
+    localStorage.setItem("drinkAdminLoggedIn", "true"); 
     document.getElementById("adminState").innerText = "目前狀態：管理員已登入";
     document.getElementById("adminState").style.color = "#38a169";
+    renderOrderList(); // 登入成功後即時刷新訂單列表，讓❌按鈕跑出來
     alert("管理員認證成功！重新整理網頁也不會斷線囉。");
   } else {
     alert("帳號或密碼不正確！");
@@ -574,9 +583,10 @@ function login() {
 
 function logout() {
   isAdmin = false;
-  localStorage.removeItem("drinkAdminLoggedIn"); // 清除記憶
+  localStorage.removeItem("drinkAdminLoggedIn"); 
   document.getElementById("adminState").innerText = "目前狀態：未登入";
   document.getElementById("adminState").style.color = "#718096";
+  renderOrderList(); // 登出後刷新列表，隱藏❌按鈕
   alert("已成功登出管理員身分。");
 }
 
@@ -691,6 +701,7 @@ if (localStorage.getItem("drinkAdminLoggedIn") === "true") {
   isAdmin = true;
   document.getElementById("adminState").innerText = "目前狀態：管理員已自動登入";
   document.getElementById("adminState").style.color = "#38a169";
+  renderOrderList();
 }
 </script>
 
