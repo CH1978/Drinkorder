@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>靜宜早點點餐系統 V3.6 穩定版</title>
+<title>1150529定飲料了 測試中版</title>
 
 <style>
   :root {
@@ -329,30 +329,61 @@ let countdownTimer = null;
 
 const categories = {
 
-  "Egg Roll Series 蛋餅類": [
-    {"name": "豬肉蛋餅", "price": 70},
-    {"name": "牛肉蛋餅", "price": 70},
-    {"name": "蔬菜蛋餅", "price": 45},
-    {"name": "玉米蛋餅", "price": 45},
-    {"name": "蛋餅", "price": 35}
+
+  " 茶農好茶": [
+    {"name": "高青冷粹", "price": 50},
+    {"name": "美人茶", "price": 50},
+    {"name": "青蜜愛人", "price": 50}
   ],
-  "Pie & Pastry Series 餡餅 / 餅類": [
-    {"name": "豬肉餡餅", "price": 45},
-    {"name": "牛肉餡餅", "price": 45},
-    {"name": "韭菜肉餅", "price": 26},
-    {"name": "蔥肉餅", "price": 26},
-    {"name": "紅豆餅", "price": 24},
-    {"name": "芋頭餅", "price": 24},
-    {"name": "燒餅", "price": 24}
+  " 咖啡飲": [
+    {"name": "阿里山手沖咖啡", "price": 120},
+    {"name": "美式咖啡", "price": 50},
+    {"name": "拿鐵", "price": 55},
+    {"name": "風暴咖啡", "price": 60}
   ],
-  "Dim Sum & Combos 點心 / 組合類": [
-    {"name": "油條", "price": 22},
-    {"name": "燒餅 + 油條", "price": 46},
-    {"name": "燒餅 + 肉片", "price": 55},
-    {"name": "燒餅 + 蔥蛋", "price": 42},
-    {"name": "燒餅 + 荷包蛋", "price": 39},
-    {"name": "蔥包蛋", "price": 18},
-    {"name": "荷包蛋", "price": 15}
+  "奶香飲": [
+    {"name": "東方一朵白", "price": 60},
+    {"name": "一抹綠", "price": 60},
+    {"name": "念念布忘", "price": 70}
+  ],
+  "輕感飲": [
+    {"name": "輕飄飄籽寶", "price": 70},
+    {"name": "今天喝這杯", "price": 80}
+  ],
+  "無咖飲": [
+    {"name": "黑糖薑茶", "price": 60},
+    {"name": "桂圓紅棗茶", "price": 60},
+    {"name": "薑薑好", "price": 65},
+    {"name": "棗暖暖", "price": 65},
+    {"name": "喬韻茶", "price": 50},
+    {"name": "喬韻奶茶", "price": 60},
+    {"name": "煦煦光茶", "price": 50},
+    {"name": "煦煦奶香", "price": 60}
+  ],
+  " 果漾特調": [
+    {"name": "蜜蜜傳說", "price": 60},
+    {"name": "五月天", "price": 60},
+    {"name": "蜜蜜爆一下", "price": 70},
+    {"name": "五月天.荔荔在心頭", "price": 70}
+  ],
+  " 濃奶飲": [
+    {"name": "五月如煙", "price": 70},
+    {"name": "蜜蜜仙境", "price": 70}
+  ],
+  " 有料飲": [
+    {"name": "黑糖Q奶", "price": 65},
+    {"name": "蕎麥Q奶", "price": 65},
+    {"name": "黑糖啵啵", "price": 65},
+    {"name": "0卡啵啵", "price": 65},
+    {"name": "粉角Q奶", "price": 65},
+    {"name": "黑糖雙Q", "price": 70},
+    {"name": "美人甜一點", "price": 65},
+    {"name": "黑美人", "price": 55}
+  ],
+  " 多多好心情": [
+    {"name": "幸福多多", "price": 60},
+    {"name": "幸福多多- 草莓", "price": 60},
+    {"name": "幸福多多- 牛奶", "price": 60}
   ]
 
 
