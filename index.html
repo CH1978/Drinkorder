@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>1150529定飲料了 測試中版</title>
+<title>1150529喝飲料了 測試中版</title>
 
 <style>
   :root {
@@ -528,7 +528,7 @@ function renderStats() {
   let d = document.getElementById("stats");
   let html = "";
   for (let k in s) {
-    html += `<div>• ${k}：共 <span style="font-weight:bold;color:var(--primary);">${s[k]}</span> 份</div>`;
+    html += `<div>• ${k}：共 <span style="font-weight:bold;color:var(--primary);">${s[k]}</span> 喝</div>`;
   }
   d.innerHTML = html || "暫無統計數據";
 }
@@ -549,7 +549,7 @@ function renderRank() {
   
   arr.forEach((x, i) => {
     let medal = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : `${i+1}. `;
-    html += `<div>${medal}${x[0]} (<span style="color:var(--accent); font-weight:bold;">${x[1]}份</span>)</div>`;
+    html += `<div>${medal}${x[0]} (<span style="color:var(--accent); font-weight:bold;">${x[1]}喝</span>)</div>`;
   });
   d.innerHTML = html || "暫無排行資料";
 }
